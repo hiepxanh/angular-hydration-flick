@@ -1,6 +1,7 @@
 import { inject, Component, PLATFORM_ID } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HomeComponent } from './home.component';
+import { NgxDynamic } from './ngx-dynamic.component';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +10,8 @@ import { HomeComponent } from './home.component';
       [content]="content"
       [componentData]="componentData"
     ></ngx-dynamic>`,
+  standalone: true,
+  imports: [NgxDynamic]
 })
 export class AppComponent {
   content = `html from server: <app-home></app-home>`;

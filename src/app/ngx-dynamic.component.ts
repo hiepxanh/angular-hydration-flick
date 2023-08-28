@@ -7,6 +7,7 @@ import {
   createComponent,
   Input,
   ChangeDetectorRef,
+  Inject,
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -22,11 +23,15 @@ export class NgxDynamic {
   vcr = inject(ViewContainerRef);
   envInjector = inject(EnvironmentInjector);
   applicationRef = inject(ApplicationRef);
-  document = inject(DOCUMENT);
+  // document = inject(DOCUMENT);
   domSanitizer = inject(DomSanitizer);
   cd = inject(ChangeDetectorRef);
   // The bypassSecurityTrustHtml would return a new object each time it's invoked, store a reference to the function call result
   sanitizedContent: SafeHtml | undefined;
+
+  constructor(@Inject(DOCUMENT) private document: Document) {
+
+  }
 
   ngOnInit() {
     this.sanitizedContent = this.domSanitizer.bypassSecurityTrustHtml(
