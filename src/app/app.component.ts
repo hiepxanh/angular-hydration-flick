@@ -17,10 +17,11 @@ export class NavbarComponent {
 
 @Component({
   selector: 'app-root',
-  template: `<ngx-dynamic
-    [content]="content"
-    [componentData]="componentData"
-  ></ngx-dynamic>`,
+  template: `<h1>Welcome to dynamic</h1>
+    <ngx-dynamic
+      [content]="content"
+      [componentData]="componentData"
+    ></ngx-dynamic>`,
 })
 export class AppComponent {
   content = `<p>Hello, this is Home and navbar:</p> <app-navbar></app-nabar>`;

@@ -23,6 +23,6 @@ const routes: Routes = [
     }),
   ],
   providers: [provideClientHydration()],
-  // bootstrap: [AppComponent],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
