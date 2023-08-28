@@ -5,8 +5,7 @@ import {
 } from '@angular/platform-browser';
 import { Routes, RouterModule, NoPreloading } from '@angular/router';
 
-import { AppComponent } from './app.component';
-import { NgxDynamic } from './ngx-dynamic.component';
+import { AppComponent, NgxDynamic } from './app.component';
 const routes: Routes = [
   {
     path: '',
