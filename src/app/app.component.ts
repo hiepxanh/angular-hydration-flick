@@ -4,27 +4,24 @@ import { isPlatformBrowser } from '@angular/common';
 @Component({
   standalone: true,
   selector: 'app-navbar',
-  template: `
-    <div [style]="'height: 200px;' + style">
-      <p>navbar should be: {{ platform }}</p>
-    </div>
-  `,
+  template: `<p>navbar: {{ platform }}</p>`,
 })
 export class NavbarComponent {
   platform = inject(PLATFORM_ID);
-  style = 'background:' + (isPlatformBrowser(this.platform) ? 'red' : 'green');
 }
 
 @Component({
   selector: 'app-root',
-  template: `<h1>Welcome to dynamic</h1>
-    <ngx-dynamic
+  template: `<p>app-root: {{ platform }}</p>
+  <ngx-dynamic
       [content]="content"
       [componentData]="componentData"
     ></ngx-dynamic>`,
 })
 export class AppComponent {
-  content = `<p>Hello, this is Home and navbar:</p> <app-navbar></app-nabar>`;
+  platform = inject(PLATFORM_ID);
+
+  content = `<p>navbar here:</p> <app-navbar></app-nabar>`;
   componentData = {
     component: NavbarComponent,
     selector: 'app-navbar',
