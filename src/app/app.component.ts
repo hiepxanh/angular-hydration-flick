@@ -1,46 +1,46 @@
 import { inject, Component, PLATFORM_ID } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { isPlatformBrowser } from '@angular/common';
 
 import {
-  ViewContainerRef,
+  ElementRef,
   ApplicationRef,
-  EnvironmentInjector,
   createComponent,
   Input,
   ChangeDetectorRef,
 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { SafeHtml } from '@angular/platform-browser';
+import { DOCUMENT, isPlatformServer } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'ngx-dynamic',
-  template: ` <div [innerHTML]="sanitizedContent"></div> `,
+  template: ``,
 })
 export class NgxDynamic {
+  platformId = inject(PLATFORM_ID);
   @Input() content!: string;
+  @Input() context!: any;
   @Input() componentData!: any;
-  vcr = inject(ViewContainerRef);
-  envInjector = inject(EnvironmentInjector);
+  elementRef = inject(ElementRef);
   applicationRef = inject(ApplicationRef);
   document = inject(DOCUMENT);
   domSanitizer = inject(DomSanitizer);
   cd = inject(ChangeDetectorRef);
-  // The bypassSecurityTrustHtml would return a new object each time it's invoked, store a reference to the function call result
-  sanitizedContent: SafeHtml | undefined;
-
+  isServer = isPlatformServer(this.platformId);
   ngOnInit() {
-    this.sanitizedContent = this.domSanitizer.bypassSecurityTrustHtml(
-      this.content
-    );
+    if (this.isServer) {
+      this.elementRef.nativeElement.innerHTML = (
+        this.domSanitizer.bypassSecurityTrustHtml(this.content) as any
+      )['changingThisBreaksApplicationSecurity'];
+      console.log('at server', this.content);
+    } else {
+      console.log('at client', this.content);
+    }
   }
 
   ngAfterViewInit() {
-    try {
+    if (this.isServer) {
+      console.log('2', this.platformId, this.isServer, this.context);
       this.render();
-    } catch (error: any) {
-      console.log('render fail', error.message);
     }
   }
 
@@ -51,8 +51,9 @@ export class NgxDynamic {
     if (hostElement && this.componentData) {
       const compRef = createComponent(this.componentData.component, {
         hostElement,
-        environmentInjector: this.envInjector,
+        environmentInjector: this.applicationRef.injector,
       });
+      compRef.setInput('data', this.context.data);
       this.applicationRef.attachView(compRef.hostView);
       compRef.changeDetectorRef.detectChanges();
       this.cd.detectChanges();
@@ -60,13 +61,14 @@ export class NgxDynamic {
   }
 }
 
+
 @Component({
   standalone: true,
   selector: 'app-navbar',
-  template: `<p>navbar: {{ platform }}</p>`,
+  template: `<p>navbar data: {{ data }}</p>`,
 })
 export class NavbarComponent {
-  platform = inject(PLATFORM_ID);
+  @Input() data!: any;
 }
 
 @Component({
@@ -74,20 +76,18 @@ export class NavbarComponent {
   template: `<p>app-root: {{ platform }}</p>
     <ngx-dynamic
       [content]="content"
+      [context]="context"
       [componentData]="componentData"
     ></ngx-dynamic>`,
-  standalone: true,
   imports: [NgxDynamic],
+  standalone: true,
 })
 export class AppComponent {
   platform = inject(PLATFORM_ID);
-
-  content = `<p>navbar here:</p> <app-navbar></app-nabar>`;
+  context = { data: this.platform };
+  content = `<app-navbar></app-nabar>`;
   componentData = {
     component: NavbarComponent,
     selector: 'app-navbar',
   };
-  domSanitizer = inject(DomSanitizer);
-  // The bypassSecurityTrustHtml would return a new object each time it's invoked, store a reference to the function call result
-  sanitizedContent = this.domSanitizer.bypassSecurityTrustHtml(this.content);
 }
